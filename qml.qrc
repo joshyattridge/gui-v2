@@ -446,6 +446,7 @@
         <file>pages/settings/devicelist/DeviceListPage.qml</file>
         <file>pages/settings/devicelist/PageNotYetImplemented.qml</file>
         <file>pages/settings/devicelist/PageUnsupportedDevice.qml</file>
+        <file>pages/settings/devicelist/motordrive/PageMotorDrive.qml</file>
         <file>pages/settings/devicelist/tank/PageTankAlarm.qml</file>
         <file>pages/settings/devicelist/tank/PageTankSensor.qml</file>
         <file>pages/settings/devicelist/tank/PageTankSetup.qml</file>

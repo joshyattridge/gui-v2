@@ -642,6 +642,10 @@ void registerQmlTypes()
 	qmlRegisterType(QUrl(QStringLiteral("qrc:/pages/settings/tz/TzPacificData.qml")),
 		"Victron.VenusOS", 2, 0, "TzPacificData");
 
+	// device list settings pages
+	qmlRegisterType(QUrl(QStringLiteral("qrc:/pages/settings/devicelist/motordrive/PageMotorDrive.qml")),
+		"Victron.VenusOS", 2, 0, "PageMotorDrive");
+
 	// These types do not use dbus, so are safe to import even in the Qt Wasm build.
 	qmlRegisterType<VeQuickItem>("Victron.Veutil", 1, 0, "VeQuickItem");
 	qmlRegisterType<VeQItem>("Victron.Veutil", 1, 0, "VeQItem");

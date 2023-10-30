@@ -96,7 +96,7 @@ Page {
 			}
 
 		} else if (serviceType === "motordrive") {
-			url = "/pages/settings/devicelist/PageNotYetImplemented.qml"
+			url = "/pages/settings/devicelist/motordrive/PageMotorDrive.qml"
 			params = { "bindPrefix" : device.serviceUid }
 			summary = [ Units.getCombinedDisplayText(VenusOS.Units_RevolutionsPerMinute, device.motorRpm) ]
 
