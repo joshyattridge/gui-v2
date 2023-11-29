@@ -15,6 +15,15 @@ jobs:
     permissions:
       contents: write
     steps:
+    - name: Set no_cachegen depending on the branch being tagged
+      run: |
+        if [[ ${{ github.event_name }} == 'push' && ${{ github.ref | split('/') [1] }} == 'tags' ]]; then
+          echo "Tagged release, setting NO_CACHEGEN to false"
+          echo "NO_CACHEGEN=false" >> $GITHUB_ENV
+        else
+          echo "Non-tagged release, setting NO_CACHEGEN to true"
+          echo "NO_CACHEGEN=true" >> $GITHUB_ENV
+        fi
     - name: Checkout repository and submodules
       uses: actions/checkout@v3
       with:
@@ -99,6 +108,7 @@ jobs:
         export PATH=$PATH:/opt/hostedtoolcache/Qt/Tools/CMake/bin
         mkdir build-wasm && cd build-wasm
         ${QTDIR}/bin/qt-cmake -DCMAKE_BUILD_TYPE=MinSizeRel ..
+        cmake -DNO_CACHEGEN=${{ env.NO_CACHEGEN }} ../CMakeLists.txt
         cmake --build .
         grep -q -E '^var createQtAppInstance' venus-gui-v2.js
         sed -i "s%^var \(createQtAppInstance\)%window.\1%" venus-gui-v2.js
