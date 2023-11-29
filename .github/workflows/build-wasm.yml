@@ -15,11 +15,12 @@ jobs:
     permissions:
       contents: write
     steps:
-    - name: Set no_cachegen depending on the branch being tagged
+    - name: Set no_cachegen to false if branch is tagged
       if: startsWith(github.ref, 'refs/tags/')
       run: |
         echo "Tagged release, setting NO_CACHEGEN to false"
         echo "NO_CACHEGEN=false" >> $GITHUB_ENV
+    - name: Set no_cachegen to true if branch is not tagged
       if: ${{ !startsWith(github.ref, 'refs/tags/') }}
       run: |
         echo "Non-tagged release, setting NO_CACHEGEN to true"
