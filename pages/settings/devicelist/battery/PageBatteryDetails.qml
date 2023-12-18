@@ -19,7 +19,7 @@ Page {
 				//% "Lowest cell voltage"
 				text: qsTrId("batterydetails_lowest_cell_voltage")
 				textModel: [
-					{ value: details.minVoltageCellId.value, unit: VenusOS.Units_Volt },
+					{ value: details.minVoltageCellId.value },
 					{ value: details.minCellVoltage.value, unit: VenusOS.Units_Volt },
 				]
 			}
@@ -28,7 +28,7 @@ Page {
 				//% "Highest cell voltage"
 				text: qsTrId("batterydetails_highest_cell_voltage")
 				textModel: [
-					{ value: details.maxVoltageCellId.value, unit: VenusOS.Units_Volt },
+					{ value: details.maxVoltageCellId.value },
 					{ value: details.maxCellVoltage.value, unit: VenusOS.Units_Volt },
 				]
 			}
@@ -38,8 +38,7 @@ Page {
 				text: qsTrId("batterydetails_minimum_cell_temperature")
 				textModel: [
 					{
-						value: Global.systemSettings.convertTemperature(details.minTemperatureCellId.value),
-						unit: Global.systemSettings.temperatureUnit.value
+						value: Global.systemSettings.convertTemperature(details.minTemperatureCellId.value)
 					},
 					{
 						value: Global.systemSettings.convertTemperature(details.minCellTemperature.value),
@@ -53,8 +52,7 @@ Page {
 				text: qsTrId("batterydetails_maximum_cell_temperature")
 				textModel: [
 					{
-						value: Global.systemSettings.convertTemperature(details.maxTemperatureCellId.value),
-						unit: Global.systemSettings.temperatureUnit.value
+						value: Global.systemSettings.convertTemperature(details.maxTemperatureCellId.value)
 					},
 					{
 						value: Global.systemSettings.convertTemperature(details.maxCellTemperature.value),
@@ -69,10 +67,10 @@ Page {
 				textModel: [
 					//: %1 = number of battery modules that are online
 					//% "%1 online"
-					qsTrId("devicelist_batterydetails_modules_online").arg(details.modulesOnline.value || "--"),
+					qsTrId("devicelist_batterydetails_modules_online").arg(details.modulesOnline.value),
 					//: %1 = number of battery modules that are offline
 					//% "%1 offline"
-					qsTrId("devicelist_batterydetails_modules_offline").arg(details.modulesOffline.value || "--")
+					qsTrId("devicelist_batterydetails_modules_offline").arg(details.modulesOffline.value)
 				]
 			}
 
@@ -85,7 +83,10 @@ Page {
 			ListTextGroup {
 				//% "Installed / Available capacity"
 				text: qsTrId("batterydetails_installed_available_capacity")
-				textModel: [ details.installedCapacity.value, capacity.value ]
+				textModel: [
+					Units.getCombinedDisplayText(VenusOS.Units_AmpHour, details.installedCapacity.value),
+					Units.getCombinedDisplayText(VenusOS.Units_AmpHour, capacity.value)
+				]
 
 				DataPoint {
 					id: capacity
