@@ -27,7 +27,8 @@ ListTextItem {
 
 		var hexString = version.toString(16).toUpperCase();
 
-		if (format === "vebus")
+		// Return the version as it is, if format is "vebus" or if the version is not a hex number
+		if (format === "vebus" || !version.match(/^[0-9A-F]+$/i))
 			return "v" + hexString;
 
 		// Add leading zeros to get a string at least 3 characters long
