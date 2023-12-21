@@ -38,7 +38,7 @@ Page {
 				text: qsTrId("batterydetails_minimum_cell_temperature")
 				textModel: [
 					{
-						value: Global.systemSettings.convertTemperature(details.minTemperatureCellId.value)
+						value: details.minTemperatureCellId.value
 					},
 					{
 						value: Global.systemSettings.convertTemperature(details.minCellTemperature.value),
@@ -52,7 +52,7 @@ Page {
 				text: qsTrId("batterydetails_maximum_cell_temperature")
 				textModel: [
 					{
-						value: Global.systemSettings.convertTemperature(details.maxTemperatureCellId.value)
+						value: details.maxTemperatureCellId.value
 					},
 					{
 						value: Global.systemSettings.convertTemperature(details.maxCellTemperature.value),
