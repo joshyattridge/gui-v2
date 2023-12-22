@@ -67,7 +67,20 @@ Page {
 	}
 
 	GradientListView {
-		model: ObjectModel {
+		// Hardcoded com.victronenergy.pvinverter.* uids do not work on MQTT, so the page has no
+		// useful data in that case.
+		model: BackendConnection.type === BackendConnection.MqttSource ? invalidModel : validModel
+
+		ObjectModel {
+			id: invalidModel
+
+			ListLabel {
+				text: "This page is not supported via MQTT. View this on the device instead."
+			}
+		}
+
+		ObjectModel {
+			id: validModel
 
 			ListTextGroup {
 				id: groupP
