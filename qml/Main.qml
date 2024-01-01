@@ -6,9 +6,14 @@
 import QtQuick
 import QtQuick.Window
 import Victron.VenusOS
+import MyModule
 
 Window {
 	id: root
+
+	MyRectangle {
+
+	}
 
 	//: Application title
 	//% "Venus OS GUI"

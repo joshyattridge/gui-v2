@@ -11,6 +11,10 @@ cmake_minimum_required(VERSION 3.24) # earlier versions of cmake don't handle 'q
 #
 # Faster builds, for use in development. This stops qml code from being compiled into C++ at build time. Will run slower on the target.
 #   cmake -DNO_CACHEGEN=true
+#
+# Load qml files from the file system, instead of from the compiled qml resources.
+#   cmake -DLOAD_QML_FROM_FILESYSTEM=true
+#
 
 cmake_policy(SET CMP0071 NEW) # process GENERATED source files in AUTOMOC and AUTOUIC. Added to silence a cmake warning.
 cmake_policy(SET CMP0079 NEW)
@@ -47,6 +51,10 @@ if ("${NO_CACHEGEN}")
     set (QML_MODULE_OPTARGS ${QML_MODULE_OPTARGS} "NO_CACHEGEN")
 endif()
 
+if ("${LOAD_QML_FROM_FILESYSTEM}")
+    message("This application will load qml sources from the filesystem, not from the compiled resources")
+endif()
+
 set(REQUIRED_QT_VERSION 6.5.2) # require at least qt 6.5.2 for qt_add_qml_module to work properly
 find_package(Qt6 ${REQUIRED_QT_VERSION} COMPONENTS Core Gui Qml Quick Svg Xml Mqtt LinguistTools REQUIRED)
 
@@ -80,7 +88,7 @@ include_directories(src/veutil/inc src .)
 set (VENUS_QML_MODULE_SINGLETON_SOURCES # All qml singletons have to be added here
     components/CommonWords.qml
     components/VenusFont.qml
-    Global.qml
+    qml/Global.qml
 )
 set_source_files_properties( ${VENUS_QML_MODULE_SINGLETON_SOURCES} PROPERTIES QT_QML_SINGLETON_TYPE TRUE )
 
@@ -134,10 +142,10 @@ endif()
 
 # VENUS_QML_MODULE
 set (VENUS_QML_MODULE_SOURCES
-    ${VENUS_QML_MODULE_SINGLETON_SOURCES}
+    #${VENUS_QML_MODULE_SINGLETON_SOURCES}
 
-    ApplicationContent.qml
-    FrameRateVisualizer.qml
+    qml/ApplicationContent.qml
+    qml/FrameRateVisualizer.qml
 
     components/AcceptButtonBackground.qml
     components/AcInputsCurrentLimits.qml
@@ -565,8 +573,9 @@ qt_add_qml_module(VenusQMLModule
     ${QML_MODULE_OPTARGS}
     URI Victron.VenusOS
     VERSION 2.0
+    PLUGIN_TARGET VenusQMLModule
     STATIC
-    OUTPUT_DIRECTORY Victron/VenusOS
+    OUTPUT_DIRECTORY VenusQMLModule
     QML_FILES ${VENUS_QML_MODULE_SOURCES}
     SOURCES ${VenusQMLModule_CPP_SOURCES}
     IMPORTS net.connman
@@ -581,6 +590,19 @@ target_link_libraries(VenusQMLModule PRIVATE
     Qt6::Mqtt
     Connman
 )
+
+if ("${LOAD_QML_FROM_FILESYSTEM}")
+    set(thisModule VenusQMLModule)
+    qt_query_qml_module(${thisModule} QML_FILES module_qml_files QMLDIR module_qmldir)
+    install(TARGETS ${thisModule} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install)
+    install(FILES ${module_qmldir} $<TARGET_FILE:${thisModule}> DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/VenusOS)
+    install(DIRECTORY components DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/VenusOS)
+    add_custom_command(
+        TARGET ${thisModule}
+        COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/fix-qmldir.cmake" ${module_qmldir} "^prefer.*"
+        VERBATIM
+    )
+endif()
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Emscripten")
     target_link_libraries(VenusQMLModule PRIVATE Qt6::WebSockets)
 else()
@@ -623,10 +645,22 @@ list(APPEND QML_MODULE_SOURCES ${Dbus_QML_MODULE_SOURCES})
 qt_add_qml_module(Dbus
     URI Victron.Dbus
     STATIC
+    PLUGIN_TARGET Dbus
     OUTPUT_DIRECTORY Victron/Dbus
     QML_FILES ${Dbus_QML_MODULE_SOURCES}
     ${QML_MODULE_OPTARGS}
 )
+if ("${LOAD_QML_FROM_FILESYSTEM}")
+    set(thisModule Dbus)
+    qt_query_qml_module(${thisModule} QML_FILES module_qml_files QMLDIR module_qmldir)
+    install(TARGETS ${thisModule} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install)
+    install(FILES ${module_qml_files} ${module_qmldir} $<TARGET_FILE:${thisModule}> DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${thisModule})
+    add_custom_command(
+        TARGET ${thisModule}
+        COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/fix-qmldir.cmake" ${module_qmldir} "^prefer.*"
+        VERBATIM
+    )
+endif()
 # end Dbus_QML_MODULE
 
 # Mock_QML_MODULE
@@ -669,11 +703,23 @@ list(APPEND QML_MODULE_SOURCES ${Mock_QML_MODULE_SOURCES})
 
 qt_add_qml_module(Mock
     URI Victron.Mock
+    PLUGIN_TARGET Mock
     STATIC
     OUTPUT_DIRECTORY Victron/Mock
     QML_FILES ${Mock_QML_MODULE_SOURCES}
     ${QML_MODULE_OPTARGS}
 )
+if ("${LOAD_QML_FROM_FILESYSTEM}")
+    set(thisModule Mock)
+    qt_query_qml_module(${thisModule} QML_FILES module_qml_files QMLDIR module_qmldir)
+    install(TARGETS ${thisModule} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install)
+    install(FILES ${module_qml_files} ${module_qmldir} $<TARGET_FILE:${thisModule}> DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${thisModule})
+    add_custom_command(
+        TARGET ${thisModule}
+        COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/fix-qmldir.cmake" ${module_qmldir} "^prefer.*"
+        VERBATIM
+    )
+endif()
 # end Mock_QML_MODULE
 
 # Units_QML_MODULE
@@ -684,6 +730,7 @@ set(Units_QML_MODULE_SOURCES
 list(APPEND QML_MODULE_SOURCES ${Units_QML_MODULE_SOURCES})
 qt_add_qml_module(Units
     URI Victron.Units
+    PLUGIN_TARGET Units
     STATIC
     OUTPUT_DIRECTORY Victron/Units
     SOURCES ${Units_QML_MODULE_SOURCES}
@@ -701,10 +748,22 @@ list(APPEND QML_MODULE_SOURCES ${Utils_QML_MODULE_SOURCES})
 qt_add_qml_module(Utils
     URI Victron.Utils
     STATIC
+    PLUGIN_TARGET Utils
     OUTPUT_DIRECTORY Victron/Utils
     QML_FILES ${Utils_QML_MODULE_SOURCES}
     ${QML_MODULE_OPTARGS}
 )
+if ("${LOAD_QML_FROM_FILESYSTEM}")
+    set(thisModule Utils)
+    qt_query_qml_module(${thisModule} QML_FILES module_qml_files QMLDIR module_qmldir)
+    install(TARGETS ${thisModule} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install)
+    install(FILES ${module_qml_files} ${module_qmldir} $<TARGET_FILE:${thisModule}> DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${thisModule})
+    add_custom_command(
+        TARGET ${thisModule}
+        COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/fix-qmldir.cmake" ${module_qmldir} "^prefer.*"
+        VERBATIM
+    )
+endif()
 # end Utils_QML_MODULE
 
 # Gauges_QML_MODULE
@@ -717,10 +776,22 @@ list(APPEND QML_MODULE_SOURCES ${Gauges_QML_MODULE_SOURCES})
 qt_add_qml_module(Gauges
     URI Victron.Gauges
     STATIC
+    PLUGIN_TARGET Gauges
     OUTPUT_DIRECTORY Victron/Gauges
     QML_FILES ${Gauges_QML_MODULE_SOURCES}
     ${QML_MODULE_OPTARGS}
 )
+if ("${LOAD_QML_FROM_FILESYSTEM}")
+    set(thisModule Gauges)
+    qt_query_qml_module(${thisModule} QML_FILES module_qml_files QMLDIR module_qmldir)
+    install(TARGETS ${thisModule} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install)
+    install(FILES ${module_qml_files} ${module_qmldir} $<TARGET_FILE:${thisModule}> DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${thisModule})
+    add_custom_command(
+        TARGET ${thisModule}
+        COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/fix-qmldir.cmake" ${module_qmldir} "^prefer.*"
+        VERBATIM
+    )
+endif()
 # end Gauges_QML_MODULE
 
 # Mqtt_QML_MODULE
@@ -757,10 +828,22 @@ list(APPEND QML_MODULE_SOURCES ${Mqtt_QML_MODULE_SOURCES} )
 qt_add_qml_module(Mqtt
     URI Victron.Mqtt
     STATIC
+    PLUGIN_TARGET Mqtt
     OUTPUT_DIRECTORY Victron/Mqtt
     QML_FILES ${Mqtt_QML_MODULE_SOURCES}
     ${QML_MODULE_OPTARGS}
 )
+if ("${LOAD_QML_FROM_FILESYSTEM}")
+    set(thisModule Mqtt)
+    qt_query_qml_module(${thisModule} QML_FILES module_qml_files QMLDIR module_qmldir)
+    install(TARGETS ${thisModule} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install)
+    install(FILES ${module_qml_files} ${module_qmldir} $<TARGET_FILE:${thisModule}> DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${thisModule})
+    add_custom_command(
+        TARGET ${thisModule}
+        COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/fix-qmldir.cmake" ${module_qmldir} "^prefer.*"
+        VERBATIM
+    )
+endif()
 # end Mqtt_QML_MODULE
 
 set(VEUTIL_CORE_SOURCES
@@ -844,42 +927,84 @@ list(APPEND TRANSLATION_SOURCES
 )
 
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Emscripten")
-    qt_add_executable(${PROJECT_NAME}
+    qt_add_executable(app${PROJECT_NAME}
         ${SOURCES}
     )
 elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
     list(APPEND venusCompileFlags  ${UNIX_COMPILE_FLAGS})
     add_compile_definitions(VENUS_DESKTOP_BUILD)
-    qt_add_executable(${PROJECT_NAME}
+    qt_add_executable(app${PROJECT_NAME}
       MACOSX_BUNDLE
       ${SOURCES}
     )
 elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
     add_compile_definitions(VENUS_DESKTOP_BUILD)
-    qt_add_executable(${PROJECT_NAME}
+    qt_add_executable(app${PROJECT_NAME}
         ${SOURCES}
     )
 elseif(VENUS_DESKTOP_BUILD)
     add_compile_definitions(VENUS_DESKTOP_BUILD)
-    qt_add_executable(${PROJECT_NAME}
+    qt_add_executable(app${PROJECT_NAME}
         ${SOURCES}
     )
 else()
     list(APPEND venusCompileFlags ${UNIX_COMPILE_FLAGS})
-    qt_add_executable(${PROJECT_NAME}
+    qt_add_executable(app${PROJECT_NAME}
         ${SOURCES}
     )
 endif()
 
-qt_add_qml_module( ${PROJECT_NAME}
-    URI ${PROJECT_NAME}
+qt_add_qml_module(MyModule
+    URI MyModule
+    PLUGIN_TARGET MyModule
+    OUTPUT_DIRECTORY MyModule
     VERSION 1.0
-    RESOURCE_PREFIX /
-    QML_FILES Main.qml
-    IMPORTS Victron.VenusOS
+    STATIC
+    QML_FILES qml/MyRectangle.qml ${VENUS_QML_MODULE_SINGLETON_SOURCES}
 )
 
-qt_add_resources(${PROJECT_NAME} "${PROJECT_NAME}_large_resources"
+qt_query_qml_module(MyModule QML_FILES module_qml_files QMLDIR module_qmldir)
+
+install(TARGETS MyModule DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install)
+install(FILES ${module_qml_files} ${module_qmldir} $<TARGET_FILE:MyModule> DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${module})
+if ("${LOAD_QML_FROM_FILESYSTEM}")
+    set(thisModule MyModule)
+    qt_query_qml_module(${thisModule} QML_FILES module_qml_files QMLDIR module_qmldir)
+    install(TARGETS ${thisModule} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install)
+    install(FILES ${module_qml_files} ${module_qmldir} $<TARGET_FILE:${thisModule}> DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${thisModule})
+    add_custom_command(
+        TARGET ${thisModule}
+        COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/fix-qmldir.cmake" ${module_qmldir} "^prefer.*"
+        VERBATIM
+    )
+endif()
+
+qt_add_qml_module( app${PROJECT_NAME}
+    URI ${PROJECT_NAME}
+    VERSION 1.0
+    QML_FILES qml/Main.qml
+    IMPORTS Victron.VenusOS
+)
+if ("${LOAD_QML_FROM_FILESYSTEM}")
+    set(thisModule app${PROJECT_NAME})
+    qt_query_qml_module(${thisModule} QML_FILES module_qml_files QMLDIR module_qmldir)
+    install(TARGETS ${thisModule}
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install
+        BUNDLE DESTINATION .
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+    install(FILES ${module_qml_files} ${module_qmldir} $<TARGET_FILE:${thisModule}> DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/qml)
+    #install(FILES ${module_qml_files} ${module_qmldir} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${thisModule})
+    install(FILES $<TARGET_FILE:${thisModule}> DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install)
+
+    add_custom_command(
+        TARGET ${thisModule}
+        COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/fix-qmldir.cmake" ${module_qmldir} "^prefer.*"
+        VERBATIM
+    )
+endif()
+
+qt_add_resources(app${PROJECT_NAME} "${PROJECT_NAME}_large_resources"
     BIG_RESOURCES
     FILES
         fonts/MuseoSans-500.otf
@@ -981,7 +1106,7 @@ file(COPY
     DESTINATION "i18n") # build directory
 
 # This adds 2 new targets, venus-gui-v2_lupdate and venus-gui-v2_lrelease. Parallel builds (eg. 'make -j') do not rebuild venus-gui-v2_lrelease correctly without further 'add_dependencies' hackery
-qt_add_translations( ${PROJECT_NAME}
+qt_add_translations( app${PROJECT_NAME}
     TS_FILES
       "${CMAKE_CURRENT_BINARY_DIR}/i18n/${PROJECT_NAME}.ts"
       "${CMAKE_CURRENT_BINARY_DIR}/i18n/${PROJECT_NAME}_en.ts"
@@ -991,9 +1116,9 @@ qt_add_translations( ${PROJECT_NAME}
     LRELEASE_OPTIONS -idbased
 )
 
-add_dependencies(${PROJECT_NAME}_lrelease ${PROJECT_NAME}_lupdate) # We shouldn't need this line, but without it, parallel builds (eg. 'make -j') do not generate translations correctly
+add_dependencies(app${PROJECT_NAME}_lrelease app${PROJECT_NAME}_lupdate) # We shouldn't need this line, but without it, parallel builds (eg. 'make -j') do not generate translations correctly
 
-target_compile_definitions(${PROJECT_NAME}
+target_compile_definitions(app${PROJECT_NAME}
     PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 
 
@@ -1002,7 +1127,7 @@ add_link_options(
     $<$<CONFIG:MINSIZEREL>:-s>  # strip the binary for MinSizeRel builds
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE
+target_link_libraries(app${PROJECT_NAME} PRIVATE
     Qt6::Core
     Qt6::Gui
     Qt6::Qml
@@ -1010,21 +1135,22 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt6::Svg
     Qt6::Xml
     Qt6::Mqtt
-    VenusQMLModuleplugin
-    Gaugesplugin
-    Unitsplugin
-    Utilsplugin
-    Dbusplugin
-    Mockplugin
-    Mqttplugin
+    VenusQMLModule
+    Gauges
+    Units
+    Utils
+    Dbus
+    Mock
+    Mqtt
+    MyModule
 )
 
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Emscripten")
-    target_link_libraries(${PROJECT_NAME} PRIVATE
+    target_link_libraries(app${PROJECT_NAME} PRIVATE
         Qt6::WebSockets
     )
 else()
-    target_link_libraries(${PROJECT_NAME} PRIVATE
+    target_link_libraries(app${PROJECT_NAME} PRIVATE
         Qt6::DBus
     )
 endif()
@@ -1035,3 +1161,4 @@ add_custom_target(graphviz
                   WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
 # disable it for now, can re-enable for future analysis when required.
 #add_dependencies(${PROJECT_NAME} graphviz)
+
