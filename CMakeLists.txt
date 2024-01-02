@@ -575,7 +575,7 @@ qt_add_qml_module(VenusQMLModule
     VERSION 2.0
     PLUGIN_TARGET VenusQMLModule
     STATIC
-    OUTPUT_DIRECTORY VenusQMLModule
+    OUTPUT_DIRECTORY Victron/VenusOS
     QML_FILES ${VENUS_QML_MODULE_SOURCES}
     SOURCES ${VenusQMLModule_CPP_SOURCES}
     IMPORTS net.connman
@@ -966,9 +966,6 @@ qt_add_qml_module(MyModule
 )
 
 qt_query_qml_module(MyModule QML_FILES module_qml_files QMLDIR module_qmldir)
-
-#install(TARGETS MyModule DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install)
-#install(FILES ${module_qml_files} ${module_qmldir} $<TARGET_FILE:MyModule> DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${module}/qml)
 if ("${LOAD_QML_FROM_FILESYSTEM}")
     set(thisModule MyModule)
     qt_query_qml_module(${thisModule} QML_FILES module_qml_files QMLDIR module_qmldir)
