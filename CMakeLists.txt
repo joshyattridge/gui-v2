@@ -88,7 +88,7 @@ include_directories(src/veutil/inc src .)
 set (VENUS_QML_MODULE_SINGLETON_SOURCES # All qml singletons have to be added here
     components/CommonWords.qml
     components/VenusFont.qml
-    qml/Global.qml
+    Global.qml
 )
 set_source_files_properties( ${VENUS_QML_MODULE_SINGLETON_SOURCES} PROPERTIES QT_QML_SINGLETON_TYPE TRUE )
 
@@ -144,8 +144,8 @@ endif()
 set (VENUS_QML_MODULE_SOURCES
     ${VENUS_QML_MODULE_SINGLETON_SOURCES}
 
-    qml/ApplicationContent.qml
-    qml/FrameRateVisualizer.qml
+    ApplicationContent.qml
+    FrameRateVisualizer.qml
 
     components/AcceptButtonBackground.qml
     components/AcInputsCurrentLimits.qml
@@ -598,7 +598,12 @@ if ("${LOAD_QML_FROM_FILESYSTEM}")
     install(DIRECTORY components DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/VenusOS)
     install(DIRECTORY data DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/VenusOS)
     install(DIRECTORY pages DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/VenusOS)
-    install(DIRECTORY qml DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/VenusOS)
+    install(
+        FILES
+            ApplicationContent.qml
+            FrameRateVisualizer.qml
+            Global.qml
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/VenusOS)
     add_custom_command(
         TARGET ${thisModule}
         COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/fix-qmldir.cmake" ${module_qmldir} "^prefer.*"
@@ -962,7 +967,7 @@ qt_add_qml_module(MyModule
     OUTPUT_DIRECTORY MyModule
     VERSION 1.0
     STATIC
-    QML_FILES qml/MyRectangle.qml
+    QML_FILES MyRectangle.qml
 )
 
 qt_query_qml_module(MyModule QML_FILES module_qml_files QMLDIR module_qmldir)
@@ -970,7 +975,7 @@ if ("${LOAD_QML_FROM_FILESYSTEM}")
     set(thisModule MyModule)
     qt_query_qml_module(${thisModule} QML_FILES module_qml_files QMLDIR module_qmldir)
     install(FILES ${module_qmldir} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${thisModule}) # installs build/MyModule/qmldir
-    install(FILES ${module_qml_files} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${thisModule}/qml) # installs build/MyModule/qml/MyRectangle.qml
+    install(FILES ${module_qml_files} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${thisModule}) # installs build/MyModule/MyRectangle.qml
     add_custom_command(
         TARGET ${thisModule}
         COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/fix-qmldir.cmake" ${module_qmldir} "^prefer.*"
@@ -981,7 +986,7 @@ endif()
 qt_add_qml_module( app${PROJECT_NAME}
     URI ${PROJECT_NAME}
     VERSION 1.0
-    QML_FILES qml/Main.qml
+    QML_FILES Main.qml
     IMPORTS Victron.VenusOS
 )
 if ("${LOAD_QML_FROM_FILESYSTEM}")
@@ -993,7 +998,7 @@ if ("${LOAD_QML_FROM_FILESYSTEM}")
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     )
 
-    install(FILES ${module_qml_files} ${module_qmldir} $<TARGET_FILE:${thisModule}> DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/qml)
+    install(FILES ${module_qml_files} ${module_qmldir} $<TARGET_FILE:${thisModule}> DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install)
     install(FILES $<TARGET_FILE:${thisModule}> DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ)
 
     add_custom_command(
