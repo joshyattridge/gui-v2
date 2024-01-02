@@ -1096,9 +1096,6 @@ qt_add_resources(app${PROJECT_NAME} "${PROJECT_NAME}_large_resources"
         themes/typography/SevenInch.json
         themes/typography/TypographyDesign.json
 )
-#if ("${LOAD_QML_FROM_FILESYSTEM}")
-#    install(DIRECTORY images DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install)
-#endif()
 
 # Copy the input .ts files to the build directory before running lupdate on the copies.
 # That way if new entries are added in code, the updates don't pollute the git diff.
