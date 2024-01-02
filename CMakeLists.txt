@@ -597,6 +597,8 @@ if ("${LOAD_QML_FROM_FILESYSTEM}")
     install(TARGETS ${thisModule} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install)
     install(FILES ${module_qmldir} $<TARGET_FILE:${thisModule}> DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/VenusOS)
     install(DIRECTORY components DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/VenusOS)
+    install(DIRECTORY data DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/VenusOS)
+    install(DIRECTORY pages DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/VenusOS)
     add_custom_command(
         TARGET ${thisModule}
         COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/fix-qmldir.cmake" ${module_qmldir} "^prefer.*"
@@ -991,11 +993,11 @@ if ("${LOAD_QML_FROM_FILESYSTEM}")
     install(TARGETS ${thisModule}
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install
         BUNDLE DESTINATION .
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    )
 
     install(FILES ${module_qml_files} ${module_qmldir} $<TARGET_FILE:${thisModule}> DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/qml)
-    #install(FILES ${module_qml_files} ${module_qmldir} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${thisModule})
-    install(FILES $<TARGET_FILE:${thisModule}> DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install)
+    install(FILES $<TARGET_FILE:${thisModule}> DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ)
 
     add_custom_command(
         TARGET ${thisModule}
