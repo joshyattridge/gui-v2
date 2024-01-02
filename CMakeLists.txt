@@ -763,7 +763,6 @@ qt_add_qml_module(Utils
 if ("${LOAD_QML_FROM_FILESYSTEM}")
     set(thisModule Utils)
     qt_query_qml_module(${thisModule} QML_FILES module_qml_files QMLDIR module_qmldir)
-    install(TARGETS ${thisModule} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install)
     install(FILES ${module_qml_files} ${module_qmldir} $<TARGET_FILE:${thisModule}> DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${thisModule})
     add_custom_command(
         TARGET ${thisModule}
@@ -791,8 +790,7 @@ qt_add_qml_module(Gauges
 if ("${LOAD_QML_FROM_FILESYSTEM}")
     set(thisModule Gauges)
     qt_query_qml_module(${thisModule} QML_FILES module_qml_files QMLDIR module_qmldir)
-    install(TARGETS ${thisModule} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install)
-    install(FILES ${module_qml_files} ${module_qmldir} $<TARGET_FILE:${thisModule}> DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${thisModule})
+    install(FILES ${module_qml_files} ${module_qmldir} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${thisModule})
     add_custom_command(
         TARGET ${thisModule}
         COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/fix-qmldir.cmake" ${module_qmldir} "^prefer.*"
@@ -970,12 +968,10 @@ qt_add_qml_module(MyModule
     QML_FILES MyRectangle.qml
 )
 
-qt_query_qml_module(MyModule QML_FILES module_qml_files QMLDIR module_qmldir)
 if ("${LOAD_QML_FROM_FILESYSTEM}")
     set(thisModule MyModule)
     qt_query_qml_module(${thisModule} QML_FILES module_qml_files QMLDIR module_qmldir)
-    install(FILES ${module_qmldir} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${thisModule}) # installs build/MyModule/qmldir
-    install(FILES ${module_qml_files} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${thisModule}) # installs build/MyModule/MyRectangle.qml
+    install(FILES ${module_qmldir} ${module_qml_files} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${thisModule}) # installs build/MyModule/qmldir
     add_custom_command(
         TARGET ${thisModule}
         COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/fix-qmldir.cmake" ${module_qmldir} "^prefer.*"
@@ -1100,6 +1096,9 @@ qt_add_resources(app${PROJECT_NAME} "${PROJECT_NAME}_large_resources"
         themes/typography/SevenInch.json
         themes/typography/TypographyDesign.json
 )
+#if ("${LOAD_QML_FROM_FILESYSTEM}")
+#    install(DIRECTORY images DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install)
+#endif()
 
 # Copy the input .ts files to the build directory before running lupdate on the copies.
 # That way if new entries are added in code, the updates don't pollute the git diff.
