@@ -142,7 +142,7 @@ endif()
 
 # VENUS_QML_MODULE
 set (VENUS_QML_MODULE_SOURCES
-    #${VENUS_QML_MODULE_SINGLETON_SOURCES}
+    ${VENUS_QML_MODULE_SINGLETON_SOURCES}
 
     qml/ApplicationContent.qml
     qml/FrameRateVisualizer.qml
@@ -962,7 +962,7 @@ qt_add_qml_module(MyModule
     OUTPUT_DIRECTORY MyModule
     VERSION 1.0
     STATIC
-    QML_FILES qml/MyRectangle.qml ${VENUS_QML_MODULE_SINGLETON_SOURCES}
+    QML_FILES qml/MyRectangle.qml
 )
 
 qt_query_qml_module(MyModule QML_FILES module_qml_files QMLDIR module_qmldir)
@@ -972,8 +972,8 @@ qt_query_qml_module(MyModule QML_FILES module_qml_files QMLDIR module_qmldir)
 if ("${LOAD_QML_FROM_FILESYSTEM}")
     set(thisModule MyModule)
     qt_query_qml_module(${thisModule} QML_FILES module_qml_files QMLDIR module_qmldir)
-    install(TARGETS ${thisModule} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install)
-    install(FILES ${module_qml_files} ${module_qmldir} $<TARGET_FILE:${thisModule}> DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${thisModule}/qml)
+    install(FILES ${module_qmldir} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${thisModule}) # installs build/MyModule/qmldir
+    install(FILES ${module_qml_files} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${thisModule}/qml) # installs build/MyModule/qml/MyRectangle.qml
     add_custom_command(
         TARGET ${thisModule}
         COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/fix-qmldir.cmake" ${module_qmldir} "^prefer.*"
