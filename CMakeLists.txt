@@ -594,11 +594,11 @@ target_link_libraries(VenusQMLModule PRIVATE
 if ("${LOAD_QML_FROM_FILESYSTEM}")
     set(thisModule VenusQMLModule)
     qt_query_qml_module(${thisModule} QML_FILES module_qml_files QMLDIR module_qmldir)
-    install(TARGETS ${thisModule} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install)
-    install(FILES ${module_qmldir} $<TARGET_FILE:${thisModule}> DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/VenusOS)
+    install(FILES ${module_qmldir} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/VenusOS)
     install(DIRECTORY components DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/VenusOS)
     install(DIRECTORY data DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/VenusOS)
     install(DIRECTORY pages DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/VenusOS)
+    install(DIRECTORY qml DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/VenusOS)
     add_custom_command(
         TARGET ${thisModule}
         COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/fix-qmldir.cmake" ${module_qmldir} "^prefer.*"
