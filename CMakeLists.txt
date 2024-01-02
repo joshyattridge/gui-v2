@@ -838,8 +838,8 @@ qt_add_qml_module(Mqtt
 if ("${LOAD_QML_FROM_FILESYSTEM}")
     set(thisModule Mqtt)
     qt_query_qml_module(${thisModule} QML_FILES module_qml_files QMLDIR module_qmldir)
-    install(TARGETS ${thisModule} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install)
-    install(FILES ${module_qml_files} ${module_qmldir} $<TARGET_FILE:${thisModule}> DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${thisModule})
+    install(FILES ${module_qmldir} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/${thisModule})
+    install(DIRECTORY data/mqtt DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/${thisModule}/data)
     add_custom_command(
         TARGET ${thisModule}
         COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/fix-qmldir.cmake" ${module_qmldir} "^prefer.*"
