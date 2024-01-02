@@ -10,11 +10,18 @@ cmake_minimum_required(VERSION 3.24) # earlier versions of cmake don't handle 'q
 #   cmake -DCMAKE_BUILD_TYPE=[Debug|Release|RelWithDebInfo|MinSizeRelease]
 #
 # Faster builds, for use in development. This stops qml code from being compiled into C++ at build time. Will run slower on the target.
-#   cmake -DNO_CACHEGEN=true
+#   cmake -DNO_CACHEGEN=true /path/to/CMakeLists.txt
 #
 # Load qml files from the file system, instead of from the compiled qml resources.
-#   cmake -DLOAD_QML_FROM_FILESYSTEM=true
+#   cmake -DNO_CACHEGEN=true -DLOAD_QML_FROM_FILESYSTEM=true /path/to/CMakeLists.txt
+#   cmake --build . --parallel 8
+#   cmake --install
 #
+#   This will create a directory 'install' in your build directory. If you copy the directory to a cerbo, and run the app from that directory,
+#   qml sources will be loaded at run time. You can edit sources directly on the cerbo, restart the app, and see your changes.
+#
+#   When running a desktop build in this way on linux, I had to specify LD_LIBRARY_PATH when starting the app, eg:
+#       $ LD_LIBRARY_PATH=/opt/Qt/6.5.2/gcc_64/lib/ ./appvenus-gui-v2
 
 cmake_policy(SET CMP0071 NEW) # process GENERATED source files in AUTOMOC and AUTOUIC. Added to silence a cmake warning.
 cmake_policy(SET CMP0079 NEW)
@@ -46,12 +53,12 @@ if(("${CMAKE_BUILD_TYPE}" STREQUAL "Release" OR "${CMAKE_BUILD_TYPE}" STREQUAL "
     message("new CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS} ")
 endif()
 
-if ("${NO_CACHEGEN}")
+if (${NO_CACHEGEN})
     message("Disabling cache generation for faster builds")
     set (QML_MODULE_OPTARGS ${QML_MODULE_OPTARGS} "NO_CACHEGEN")
 endif()
 
-if ("${LOAD_QML_FROM_FILESYSTEM}")
+if (${LOAD_QML_FROM_FILESYSTEM})
     message("This application will load qml sources from the filesystem, not from the compiled resources")
 endif()
 
@@ -591,18 +598,21 @@ target_link_libraries(VenusQMLModule PRIVATE
     Connman
 )
 
-if ("${LOAD_QML_FROM_FILESYSTEM}")
+if (${LOAD_QML_FROM_FILESYSTEM})
     set(thisModule VenusQMLModule)
     qt_query_qml_module(${thisModule} QML_FILES module_qml_files QMLDIR module_qmldir)
-    install(FILES ${module_qmldir} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/VenusOS)
-    install(DIRECTORY components DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/VenusOS)
-    install(DIRECTORY data DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/VenusOS)
-    install(DIRECTORY pages DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/VenusOS)
     install(
         FILES
+            ${module_qmldir}
             ApplicationContent.qml
             FrameRateVisualizer.qml
             Global.qml
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/VenusOS)
+    install(
+        DIRECTORY
+            components
+            data
+            pages
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/VenusOS)
     add_custom_command(
         TARGET ${thisModule}
@@ -657,7 +667,7 @@ qt_add_qml_module(Dbus
     QML_FILES ${Dbus_QML_MODULE_SOURCES}
     ${QML_MODULE_OPTARGS}
 )
-if ("${LOAD_QML_FROM_FILESYSTEM}")
+if (${LOAD_QML_FROM_FILESYSTEM})
     set(thisModule Dbus)
     qt_query_qml_module(${thisModule} QML_FILES module_qml_files QMLDIR module_qmldir)
     install(FILES ${module_qmldir} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/${thisModule})
@@ -716,11 +726,11 @@ qt_add_qml_module(Mock
     QML_FILES ${Mock_QML_MODULE_SOURCES}
     ${QML_MODULE_OPTARGS}
 )
-if ("${LOAD_QML_FROM_FILESYSTEM}")
+if (${LOAD_QML_FROM_FILESYSTEM})
     set(thisModule Mock)
     qt_query_qml_module(${thisModule} QML_FILES module_qml_files QMLDIR module_qmldir)
     install(FILES ${module_qmldir} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/${thisModule})
-    install(DIRECTORY data/mock DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/${thisModule}/data)
+    install(DIRECTORY data DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/${thisModule})
     add_custom_command(
         TARGET ${thisModule}
         COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/fix-qmldir.cmake" ${module_qmldir} "^prefer.*"
@@ -760,7 +770,7 @@ qt_add_qml_module(Utils
     QML_FILES ${Utils_QML_MODULE_SOURCES}
     ${QML_MODULE_OPTARGS}
 )
-if ("${LOAD_QML_FROM_FILESYSTEM}")
+if (${LOAD_QML_FROM_FILESYSTEM})
     set(thisModule Utils)
     qt_query_qml_module(${thisModule} QML_FILES module_qml_files QMLDIR module_qmldir)
     install(FILES ${module_qml_files} ${module_qmldir} $<TARGET_FILE:${thisModule}> DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${thisModule})
@@ -787,10 +797,11 @@ qt_add_qml_module(Gauges
     QML_FILES ${Gauges_QML_MODULE_SOURCES}
     ${QML_MODULE_OPTARGS}
 )
-if ("${LOAD_QML_FROM_FILESYSTEM}")
+if (${LOAD_QML_FROM_FILESYSTEM})
     set(thisModule Gauges)
     qt_query_qml_module(${thisModule} QML_FILES module_qml_files QMLDIR module_qmldir)
-    install(FILES ${module_qml_files} ${module_qmldir} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${thisModule})
+    install(FILES ${module_qmldir} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${thisModule})
+    install(FILES ${module_qml_files} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${thisModule}/components)
     add_custom_command(
         TARGET ${thisModule}
         COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/fix-qmldir.cmake" ${module_qmldir} "^prefer.*"
@@ -838,7 +849,7 @@ qt_add_qml_module(Mqtt
     QML_FILES ${Mqtt_QML_MODULE_SOURCES}
     ${QML_MODULE_OPTARGS}
 )
-if ("${LOAD_QML_FROM_FILESYSTEM}")
+if (${LOAD_QML_FROM_FILESYSTEM})
     set(thisModule Mqtt)
     qt_query_qml_module(${thisModule} QML_FILES module_qml_files QMLDIR module_qmldir)
     install(FILES ${module_qmldir} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/Victron/${thisModule})
@@ -968,7 +979,7 @@ qt_add_qml_module(MyModule
     QML_FILES MyRectangle.qml
 )
 
-if ("${LOAD_QML_FROM_FILESYSTEM}")
+if (${LOAD_QML_FROM_FILESYSTEM})
     set(thisModule MyModule)
     qt_query_qml_module(${thisModule} QML_FILES module_qml_files QMLDIR module_qmldir)
     install(FILES ${module_qmldir} ${module_qml_files} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install/${thisModule}) # installs build/MyModule/qmldir
@@ -985,7 +996,7 @@ qt_add_qml_module( app${PROJECT_NAME}
     QML_FILES Main.qml
     IMPORTS Victron.VenusOS
 )
-if ("${LOAD_QML_FROM_FILESYSTEM}")
+if (${LOAD_QML_FROM_FILESYSTEM})
     set(thisModule app${PROJECT_NAME})
     qt_query_qml_module(${thisModule} QML_FILES module_qml_files QMLDIR module_qmldir)
     install(TARGETS ${thisModule}
