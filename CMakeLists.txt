@@ -580,7 +580,6 @@ qt_add_qml_module(VenusQMLModule
     ${QML_MODULE_OPTARGS}
     URI Victron.VenusOS
     VERSION 2.0
-    PLUGIN_TARGET VenusQMLModule
     STATIC
     OUTPUT_DIRECTORY Victron/VenusOS
     QML_FILES ${VENUS_QML_MODULE_SOURCES}
@@ -662,7 +661,6 @@ list(APPEND QML_MODULE_SOURCES ${Dbus_QML_MODULE_SOURCES})
 qt_add_qml_module(Dbus
     URI Victron.Dbus
     STATIC
-    PLUGIN_TARGET Dbus
     OUTPUT_DIRECTORY Victron/Dbus
     QML_FILES ${Dbus_QML_MODULE_SOURCES}
     ${QML_MODULE_OPTARGS}
@@ -720,7 +718,6 @@ list(APPEND QML_MODULE_SOURCES ${Mock_QML_MODULE_SOURCES})
 
 qt_add_qml_module(Mock
     URI Victron.Mock
-    PLUGIN_TARGET Mock
     STATIC
     OUTPUT_DIRECTORY Victron/Mock
     QML_FILES ${Mock_QML_MODULE_SOURCES}
@@ -747,7 +744,6 @@ set(Units_QML_MODULE_SOURCES
 list(APPEND QML_MODULE_SOURCES ${Units_QML_MODULE_SOURCES})
 qt_add_qml_module(Units
     URI Victron.Units
-    PLUGIN_TARGET Units
     STATIC
     OUTPUT_DIRECTORY Victron/Units
     SOURCES ${Units_QML_MODULE_SOURCES}
@@ -765,7 +761,6 @@ list(APPEND QML_MODULE_SOURCES ${Utils_QML_MODULE_SOURCES})
 qt_add_qml_module(Utils
     URI Victron.Utils
     STATIC
-    PLUGIN_TARGET Utils
     OUTPUT_DIRECTORY Victron/Utils
     QML_FILES ${Utils_QML_MODULE_SOURCES}
     ${QML_MODULE_OPTARGS}
@@ -792,7 +787,6 @@ list(APPEND QML_MODULE_SOURCES ${Gauges_QML_MODULE_SOURCES})
 qt_add_qml_module(Gauges
     URI Victron.Gauges
     STATIC
-    PLUGIN_TARGET Gauges
     OUTPUT_DIRECTORY Victron/Gauges
     QML_FILES ${Gauges_QML_MODULE_SOURCES}
     ${QML_MODULE_OPTARGS}
@@ -844,7 +838,6 @@ list(APPEND QML_MODULE_SOURCES ${Mqtt_QML_MODULE_SOURCES} )
 qt_add_qml_module(Mqtt
     URI Victron.Mqtt
     STATIC
-    PLUGIN_TARGET Mqtt
     OUTPUT_DIRECTORY Victron/Mqtt
     QML_FILES ${Mqtt_QML_MODULE_SOURCES}
     ${QML_MODULE_OPTARGS}
@@ -972,7 +965,6 @@ endif()
 
 qt_add_qml_module(MyModule
     URI MyModule
-    PLUGIN_TARGET MyModule
     OUTPUT_DIRECTORY MyModule
     VERSION 1.0
     STATIC
@@ -1146,14 +1138,14 @@ target_link_libraries(app${PROJECT_NAME} PRIVATE
     Qt6::Svg
     Qt6::Xml
     Qt6::Mqtt
-    VenusQMLModule
-    Gauges
-    Units
-    Utils
-    Dbus
-    Mock
-    Mqtt
-    MyModule
+    VenusQMLModuleplugin
+    Gaugesplugin
+    Unitsplugin
+    Utilsplugin
+    Dbusplugin
+    Mockplugin
+    Mqttplugin
+    MyModuleplugin
 )
 
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Emscripten")
