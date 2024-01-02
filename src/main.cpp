@@ -258,7 +258,7 @@ int main(int argc, char *argv[])
 	/* Force construction of fps counter */
 	Victron::VenusOS::FrameRateModel* fpsCounter = Victron::VenusOS::FrameRateModel::create();
 
-	QQmlComponent component(&engine, QUrl(QStringLiteral("Main.qml")));
+	QQmlComponent component(&engine, QUrl(QStringLiteral("qrc:/venus-gui-v2/Main.qml")));
 	if (component.isError()) {
 		qWarning() << component.errorString();
 		return EXIT_FAILURE;

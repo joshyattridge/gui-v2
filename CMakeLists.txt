@@ -936,29 +936,29 @@ list(APPEND TRANSLATION_SOURCES
 )
 
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Emscripten")
-    qt_add_executable(app${PROJECT_NAME}
+    qt_add_executable(${PROJECT_NAME}
         ${SOURCES}
     )
 elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
     list(APPEND venusCompileFlags  ${UNIX_COMPILE_FLAGS})
     add_compile_definitions(VENUS_DESKTOP_BUILD)
-    qt_add_executable(app${PROJECT_NAME}
+    qt_add_executable(${PROJECT_NAME}
       MACOSX_BUNDLE
       ${SOURCES}
     )
 elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
     add_compile_definitions(VENUS_DESKTOP_BUILD)
-    qt_add_executable(app${PROJECT_NAME}
+    qt_add_executable(${PROJECT_NAME}
         ${SOURCES}
     )
 elseif(VENUS_DESKTOP_BUILD)
     add_compile_definitions(VENUS_DESKTOP_BUILD)
-    qt_add_executable(app${PROJECT_NAME}
+    qt_add_executable(${PROJECT_NAME}
         ${SOURCES}
     )
 else()
     list(APPEND venusCompileFlags ${UNIX_COMPILE_FLAGS})
-    qt_add_executable(app${PROJECT_NAME}
+    qt_add_executable(${PROJECT_NAME}
         ${SOURCES}
     )
 endif()
@@ -981,15 +981,15 @@ if (${LOAD_QML_FROM_FILESYSTEM})
         VERBATIM
     )
 endif()
-
-qt_add_qml_module( app${PROJECT_NAME}
+qt_add_qml_module( ${PROJECT_NAME}
     URI ${PROJECT_NAME}
     VERSION 1.0
+    RESOURCE_PREFIX /
     QML_FILES Main.qml
     IMPORTS Victron.VenusOS
 )
 if (${LOAD_QML_FROM_FILESYSTEM})
-    set(thisModule app${PROJECT_NAME})
+    set(thisModule ${PROJECT_NAME})
     qt_query_qml_module(${thisModule} QML_FILES module_qml_files QMLDIR module_qmldir)
     install(TARGETS ${thisModule}
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/install
@@ -1007,7 +1007,7 @@ if (${LOAD_QML_FROM_FILESYSTEM})
     )
 endif()
 
-qt_add_resources(app${PROJECT_NAME} "${PROJECT_NAME}_large_resources"
+qt_add_resources(${PROJECT_NAME} "${PROJECT_NAME}_large_resources"
     BIG_RESOURCES
     FILES
         fonts/MuseoSans-500.otf
@@ -1109,7 +1109,7 @@ file(COPY
     DESTINATION "i18n") # build directory
 
 # This adds 2 new targets, venus-gui-v2_lupdate and venus-gui-v2_lrelease. Parallel builds (eg. 'make -j') do not rebuild venus-gui-v2_lrelease correctly without further 'add_dependencies' hackery
-qt_add_translations( app${PROJECT_NAME}
+qt_add_translations( ${PROJECT_NAME}
     TS_FILES
       "${CMAKE_CURRENT_BINARY_DIR}/i18n/${PROJECT_NAME}.ts"
       "${CMAKE_CURRENT_BINARY_DIR}/i18n/${PROJECT_NAME}_en.ts"
@@ -1119,9 +1119,9 @@ qt_add_translations( app${PROJECT_NAME}
     LRELEASE_OPTIONS -idbased
 )
 
-add_dependencies(app${PROJECT_NAME}_lrelease app${PROJECT_NAME}_lupdate) # We shouldn't need this line, but without it, parallel builds (eg. 'make -j') do not generate translations correctly
+add_dependencies(${PROJECT_NAME}_lrelease ${PROJECT_NAME}_lupdate) # We shouldn't need this line, but without it, parallel builds (eg. 'make -j') do not generate translations correctly
 
-target_compile_definitions(app${PROJECT_NAME}
+target_compile_definitions(${PROJECT_NAME}
     PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 
 
@@ -1130,7 +1130,7 @@ add_link_options(
     $<$<CONFIG:MINSIZEREL>:-s>  # strip the binary for MinSizeRel builds
 )
 
-target_link_libraries(app${PROJECT_NAME} PRIVATE
+target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt6::Core
     Qt6::Gui
     Qt6::Qml
@@ -1149,11 +1149,11 @@ target_link_libraries(app${PROJECT_NAME} PRIVATE
 )
 
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Emscripten")
-    target_link_libraries(app${PROJECT_NAME} PRIVATE
+    target_link_libraries(${PROJECT_NAME} PRIVATE
         Qt6::WebSockets
     )
 else()
-    target_link_libraries(app${PROJECT_NAME} PRIVATE
+    target_link_libraries(${PROJECT_NAME} PRIVATE
         Qt6::DBus
     )
 endif()
@@ -1164,4 +1164,3 @@ add_custom_target(graphviz
                   WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
 # disable it for now, can re-enable for future analysis when required.
 #add_dependencies(${PROJECT_NAME} graphviz)
-
