@@ -101,8 +101,9 @@ jobs:
         export QTDIR=/opt/hostedtoolcache/Qt/$QT_VERSION/wasm_singlethread
         export PATH=$PATH:/opt/hostedtoolcache/Qt/Tools/CMake/bin
         mkdir build-wasm && cd build-wasm
-        ${QTDIR}/bin/qt-cmake -DCMAKE_BUILD_TYPE=MinSizeRel ..
-        cmake --build .
+        ${QTDIR}/bin/qt-cmake -DNO_CACHEGEN=true -DLOAD_QML_FROM_FILESYSTEM=true ..
+        cmake --build . --parallel 8
+        cmake --install .
         cd -
     - name: Patch and pack webassembly files
       run: |
