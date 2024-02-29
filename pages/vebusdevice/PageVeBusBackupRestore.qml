@@ -11,16 +11,19 @@ Page {
 
 	readonly property string bindPrefix: Global.systemSettings.serviceUid
 
-	property DataPoint _backupRestoreAction: DataPoint {
-		source: "com.victronenergy.vebusbr/Action"
+	VeQuickItem {
+		id: _backupRestoreAction
+		uid: "com.victronenergy.vebusbr/Action"
 	}
 
-	property DataPoint _backupName: DataPoint {
-		source: "com.victronenergy.vebusbr/BackupName"
+	VeQuickItem {
+		id: _backupName
+		uid: "com.victronenergy.vebusbr/BackupName"
 	}
 
-	property DataPoint _backupRestoreInfo: DataPoint {
-		source: "com.victronenergy.vebusbr/Info"
+	VeQuickItem {
+		id: _backupRestoreInfo
+		uid: "com.victronenergy.vebusbr/Info"
 		onValueChanged: {
 			if (valid){
 				Global.showToastNotification(VenusOS.Notification_Info, value, 10000)
@@ -28,8 +31,9 @@ Page {
 		}
 	}
 
-	property DataPoint _backupRestoreError: DataPoint {
-		source: "com.victronenergy.vebusbr/Error"
+	VeQuickItem {
+		id: _backupRestoreError
+		uid: "com.victronenergy.vebusbr/Error"
 		onValueChanged: {
 			if (valid){
 				Global.showToastNotification(VenusOS.Notification_Warning, value, 10000)
