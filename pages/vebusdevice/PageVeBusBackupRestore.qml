@@ -9,21 +9,21 @@ import Victron.VenusOS
 Page {
 	id: root
 
-	readonly property string bindPrefix: Global.systemSettings.serviceUid
+	readonly property string serviceUid: BackendConnection.serviceUidForType("vebusbr")
 
 	VeQuickItem {
 		id: _backupRestoreAction
-		uid: "com.victronenergy.vebusbr/Action"
+		uid: root.serviceUid + "/Action"
 	}
 
 	VeQuickItem {
 		id: _backupName
-		uid: "com.victronenergy.vebusbr/BackupName"
+		uid: root.serviceUid + "/BackupName"
 	}
 
 	VeQuickItem {
 		id: _backupRestoreInfo
-		uid: "com.victronenergy.vebusbr/Info"
+		uid: root.serviceUid + "/Info"
 		onValueChanged: {
 			if (valid){
 				Global.showToastNotification(VenusOS.Notification_Info, value, 10000)
@@ -33,7 +33,7 @@ Page {
 
 	VeQuickItem {
 		id: _backupRestoreError
-		uid: "com.victronenergy.vebusbr/Error"
+		uid: root.serviceUid + "/Error"
 		onValueChanged: {
 			if (valid){
 				Global.showToastNotification(VenusOS.Notification_Warning, value, 10000)

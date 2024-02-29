@@ -230,11 +230,10 @@ Page {
 			ListNavigationItem {
 				//% "Advanced"
 				text: qsTrId("vebus_device_page_advanced")
-				// onClicked: Global.pageManager.pushPage("/pages/vebusdevice/PageVeBusAdvanced.qml",
-				// 									   { "veBusDevice": root.veBusDevice,
-				// 										   "title": text
-				// 									   })
-				onClicked: console.log("here"+veBusDevice.serviceUid)
+				onClicked: Global.pageManager.pushPage("/pages/vebusdevice/PageVeBusAdvanced.qml",
+													   { "veBusDevice": root.veBusDevice,
+														   "title": text
+													   })
 			}
 
 			ListNavigationItem {
