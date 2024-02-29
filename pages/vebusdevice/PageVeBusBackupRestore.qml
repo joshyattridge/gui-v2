@@ -42,8 +42,12 @@ Page {
 			ListButton {
 				//% "Backup"
 				text: qsTrId("backup")
-				//% "Press to backup"
-				secondaryText: qsTrId("vebus_device_press_to_backup")
+				secondaryText: (
+					//% "Press to backup"
+					(_backupRestoreAction.value !== 1)? qsTrId("vebus_device_press_to_backup")
+					//% "Backing up..."
+					: qsTrId("backing_up") + " " + _backupRestoreInfo.value
+				)
 				visible: _backupRestoreAction.isValid
 				enabled: _backupRestoreAction.value === 0
 				onClicked: {
@@ -53,9 +57,9 @@ Page {
 			ListButton {
 				//% "Restore"
 				text: qsTrId("restore")
-				//% "Press to restore"
 				secondaryText: (
-					(_backupRestoreAction.value === 0)? (qsTrId("vebus_device_press_to_restore") + (_backupName.isValid ? " " + _backupName.value : ""))
+					//% "Press to restore"
+					(_backupRestoreAction.value !== 2)? (qsTrId("vebus_device_press_to_restore") + (_backupName.isValid ? " " + _backupName.value : ""))
 					//% "Restoring..."
 					: qsTrId("restoring") + " " + _backupRestoreInfo.value
 				)
