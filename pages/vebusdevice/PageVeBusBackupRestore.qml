@@ -59,9 +59,6 @@ Page {
 					//% "Restoring..."
 					: qsTrId("restoring") + " " + _backupRestoreInfo.value
 				)
-
-				
-				(_backupRestoreAction.value === 0)? (qsTrId("vebus_device_press_to_restore") + (_backupName.isValid ? " " + _backupName.value : "")): ""
 				visible: _backupRestoreAction.isValid && _backupName.isValid
 				enabled: _backupRestoreAction.value === 0
 				onClicked: {
