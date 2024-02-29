@@ -256,6 +256,15 @@ Page {
 
 			}
 
+			ListNavigationItem {
+				//% "Backup & Restore"
+				text: qsTrId("backup_and_restore")
+				onClicked: Global.pageManager.pushPage("/pages/vebusdevice/PageVeBusBackupRestore.qml",
+													   {
+														   "title": text,
+													   })
+			}
+
 			ListLabel {
 				//% "A VE.Bus BMS automatically turns the system off when needed to protect the battery. Controlling the system from the Color Control is therefore not possible."
 				text: qsTrId("vebus_device_bms_message")
