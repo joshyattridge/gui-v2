@@ -234,7 +234,7 @@ Page {
 				// 									   { "veBusDevice": root.veBusDevice,
 				// 										   "title": text
 				// 									   })
-				onClicked: console.log("here"+_acOutputPower.Uid)
+				onClicked: console.log("here"+veBusDevice.serviceUid)
 			}
 
 			ListNavigationItem {
