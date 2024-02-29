@@ -11,14 +11,31 @@ Page {
 
 	readonly property string bindPrefix: Global.systemSettings.serviceUid
 
-	// property DataPoint _backuprestoreState: DataPoint {
-	// 	source: "com.victronenergy.backuprestore/Quattromulti/State"
-	// 	onValueChanged: {
-	// 		if (value === 3) Global.showToastNotification(VenusOS.Notification_Warning, _backuprestoreError.value, 10000)
-	// 		else if (value === 4) Global.showToastNotification(VenusOS.Notification_Info, backup_complete, 10000)
-	// 		else if (value === 5) Global.showToastNotification(VenusOS.Notification_Info, restore_complete, 10000)
-	// 	}
-	// }
+	property DataPoint _backupRestoreAction: DataPoint {
+		source: "com.victronenergy.vebusbr/Action"
+	}
+
+	property DataPoint _backupName: DataPoint {
+		source: "com.victronenergy.vebusbr/BackupName"
+	}
+
+	property DataPoint _backupRestoreInfo: DataPoint {
+		source: "com.victronenergy.vebusbr/Info"
+		onValueChanged: {
+			if (valid){
+				Global.showToastNotification(VenusOS.Notification_Info, value, 10000)
+			}
+		}
+	}
+
+	property DataPoint _backupRestoreError: DataPoint {
+		source: "com.victronenergy.vebusbr/Error"
+		onValueChanged: {
+			if (valid){
+				Global.showToastNotification(VenusOS.Notification_Warning, value, 10000)
+			}
+		}
+	}
 
 	GradientListView {
 		model: ObjectModel {
@@ -28,24 +45,33 @@ Page {
 				text: qsTrId("backup")
 				//% "Press to backup"
 				secondaryText: qsTrId("vebus_device_press_to_backup")
-				// visible: _backuprestoreState.valid
-				// onClicked: {
-				// 	//% "Updating the MK3, values will reappear after the update is complete"
-				// 	Global.showToastNotification(VenusOS.Notification_Info, qsTrId("vebus_device_updating_the_mk3"), 10000)
-				// 	mk3firmware.doUpdate()
-				// }
+				visible: _backupRestoreAction.valid
+				enabled: _backupRestoreAction.value === 0
+				onClicked: {
+					_backupRestoreAction.setValue(1)
+				}
 			}
 			ListButton {
 				//% "Restore"
 				text: qsTrId("restore")
 				//% "Press to restore"
-				secondaryText: qsTrId("vebus_device_press_to_restore")
-				// visible: _backuprestoreState.valid
-				// onClicked: {
-				// 	//% "Updating the MK3, values will reappear after the update is complete"
-				// 	Global.showToastNotification(VenusOS.Notification_Info, qsTrId("vebus_device_updating_the_mk3"), 10000)
-				// 	mk3firmware.doUpdate()
-				// }
+				secondaryText: qsTrId("vebus_device_press_to_restore") + " " + _backupName.value
+				visible: _backupRestoreAction.valid
+				enabled: _backupRestoreAction.value === 0
+				onClicked: {
+					_backupRestoreAction.setValue(2)
+				}
+			}
+			ListButton {
+				//% "Delete backup file"
+				text: qsTrId("delete_backup_file")
+				//% "Press to delete backup file"
+				secondaryText: qsTrId("vebus_device_press_to_delete_backup_file")
+				visible: _backupRestoreAction.valid
+				enabled: _backupRestoreAction.value === 0
+				onClicked: {
+					_backupRestoreAction.setValue(3)
+				}
 			}
 		}
 	}
