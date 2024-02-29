@@ -24,11 +24,6 @@ Page {
 	VeQuickItem {
 		id: _backupRestoreInfo
 		uid: root.serviceUid + "/Info"
-		onValueChanged: {
-			if (isValid){
-				Global.showToastNotification(VenusOS.Notification_Info, value, 10000)
-			}
-		}
 	}
 
 	VeQuickItem {
@@ -59,8 +54,15 @@ Page {
 				//% "Restore"
 				text: qsTrId("restore")
 				//% "Press to restore"
-				secondaryText: qsTrId("vebus_device_press_to_restore") + " " + _backupName.value
-				visible: _backupRestoreAction.isValid
+				secondaryText: (
+					(_backupRestoreAction.value === 0)? (qsTrId("vebus_device_press_to_restore") + (_backupName.isValid ? " " + _backupName.value : ""))
+					//% "Restoring..."
+					: qsTrId("restoring") + " " + _backupRestoreInfo.value
+				)
+
+				
+				(_backupRestoreAction.value === 0)? (qsTrId("vebus_device_press_to_restore") + (_backupName.isValid ? " " + _backupName.value : "")): ""
+				visible: _backupRestoreAction.isValid && _backupName.isValid
 				enabled: _backupRestoreAction.value === 0
 				onClicked: {
 					_backupRestoreAction.setValue(2)
@@ -71,7 +73,7 @@ Page {
 				text: qsTrId("delete_backup_file")
 				//% "Press to delete backup file"
 				secondaryText: qsTrId("vebus_device_press_to_delete_backup_file")
-				visible: _backupRestoreAction.isValid
+				visible: _backupRestoreAction.isValid && _backupName.isValid
 				enabled: _backupRestoreAction.value === 0
 				onClicked: {
 					_backupRestoreAction.setValue(3)
