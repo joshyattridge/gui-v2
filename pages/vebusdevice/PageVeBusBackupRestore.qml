@@ -46,7 +46,7 @@ Page {
 					//% "Press to backup"
 					(_backupRestoreAction.value !== 1)? qsTrId("vebus_device_press_to_backup")
 					//% "Backing up..."
-					: qsTrId("backing_up") + " " + _backupRestoreInfo.value
+					: qsTrId("backing_up") + (_backupRestoreInfo.valid? " " + _backupRestoreInfo.value: "")
 				)
 				visible: _backupRestoreAction.isValid
 				enabled: _backupRestoreAction.value === 0
@@ -61,7 +61,7 @@ Page {
 					//% "Press to restore"
 					(_backupRestoreAction.value !== 2)? (qsTrId("vebus_device_press_to_restore") + (_backupName.isValid ? " " + _backupName.value : ""))
 					//% "Restoring..."
-					: qsTrId("restoring") + " " + _backupRestoreInfo.value
+					: qsTrId("restoring") + (_backupRestoreInfo.valid? " " + _backupRestoreInfo.value: "")
 				)
 				visible: _backupRestoreAction.isValid && _backupName.isValid
 				enabled: _backupRestoreAction.value === 0
@@ -70,8 +70,8 @@ Page {
 				}
 			}
 			ListButton {
-				//% "Delete backup file"
-				text: qsTrId("delete_backup_file")
+				//% "Delete"
+				text: qsTrId("delete")
 				//% "Press to delete backup file"
 				secondaryText: qsTrId("vebus_device_press_to_delete_backup_file")
 				visible: _backupRestoreAction.isValid && _backupName.isValid
