@@ -35,6 +35,18 @@ Page {
 				// 	mk3firmware.doUpdate()
 				// }
 			}
+			ListButton {
+				//% "Restore"
+				text: qsTrId("restore")
+				//% "Press to restore"
+				secondaryText: qsTrId("vebus_device_press_to_restore")
+				// visible: _backuprestoreState.valid
+				// onClicked: {
+				// 	//% "Updating the MK3, values will reappear after the update is complete"
+				// 	Global.showToastNotification(VenusOS.Notification_Info, qsTrId("vebus_device_updating_the_mk3"), 10000)
+				// 	mk3firmware.doUpdate()
+				// }
+			}
 		}
 	}
 }
