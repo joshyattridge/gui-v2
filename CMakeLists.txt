@@ -645,6 +645,7 @@ set (VENUS_QML_MODULE_SOURCES
     pages/vebusdevice/PageVeBusAdvanced.qml
     pages/vebusdevice/PageVeBusAlarms.qml
     pages/vebusdevice/PageVeBusAlarmSettings.qml
+    pages/vebusdevice/PageVeBusBackupRestore.qml
     pages/vebusdevice/PageVeBusBms.qml
     pages/vebusdevice/PageVeBusDebug.qml
     pages/vebusdevice/PageVeBusDeviceInfo.qml
