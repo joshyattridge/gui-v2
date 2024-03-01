@@ -10,10 +10,19 @@ Page {
 	id: root
 
 	readonly property string serviceUid: BackendConnection.serviceUidForType("vebusbr")
+	property string serialVbus
 
 	VeQuickItem {
 		id: _backupRestoreAction
 		uid: root.serviceUid + "/Action"
+	}
+
+	VeQuickItem {
+		id: _backupRestoreSerial
+		uid: root.serviceUid + "/Serial"
+		Component.onCompleted: {
+			setValue(root.serialVbus)
+		}
 	}
 
 	VeQuickItem {
@@ -37,7 +46,7 @@ Page {
 	}
 
 	VeQuickItem {
-		id: _backupRestoreError
+		id: _backupRestoreNotify
 		uid: root.serviceUid + "/Notify"
 		onValueChanged: {
 			if (isValid){

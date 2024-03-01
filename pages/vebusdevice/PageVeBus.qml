@@ -46,6 +46,12 @@ Page {
 	}
 
 	VeQuickItem {
+		id: mkConnection
+
+		uid: root.veBusDevice.serviceUid + "/Interfaces/Mk2/Connection"
+	}
+
+	VeQuickItem {
 		id: mkVersion
 
 		uid: root.veBusDevice.serviceUid + "/Interfaces/Mk2/Version"
@@ -262,6 +268,7 @@ Page {
 				onClicked: Global.pageManager.pushPage("/pages/vebusdevice/PageVeBusBackupRestore.qml",
 													   {
 														   "title": text,
+														   "serialVbus": root.mkConnection.value.split("/").pop(),
 													   })
 			}
 
