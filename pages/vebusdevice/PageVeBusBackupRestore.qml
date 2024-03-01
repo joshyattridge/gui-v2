@@ -36,6 +36,16 @@ Page {
 		}
 	}
 
+	VeQuickItem {
+		id: _backupRestoreError
+		uid: root.serviceUid + "/Notify"
+		onValueChanged: {
+			if (isValid){
+				Global.showToastNotification(VenusOS.Notification_Info, value, 10000)
+			}
+		}
+	}
+
 	GradientListView {
 		model: ObjectModel {
 
