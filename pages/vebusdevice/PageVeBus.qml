@@ -268,7 +268,7 @@ Page {
 				onClicked: Global.pageManager.pushPage("/pages/vebusdevice/PageVeBusBackupRestore.qml",
 													   {
 														   "title": text,
-														   "serialVbus": mkConnection.value.split("/").pop(),
+														   "serialVbus": mkConnection.value,
 													   })
 			}
 
