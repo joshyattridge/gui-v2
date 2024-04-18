@@ -1,0 +1,56 @@
+name: build-local
+run-name: ${{ github.actor }} is building local file
+on:
+  push:
+    paths-ignore:
+      - "**/README.md"
+jobs:
+  build-local-file:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        architecture: [x86_64]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Check Architecture
+        run: |
+          if [[ "${{ matrix.architecture }}" != "x86_64" ]]; then
+            echo "Unsupported architecture. Exiting..."
+            exit 1
+          fi
+      - name: Create dir for sdk
+        run: |
+          cd /opt
+          sudo mkdir venus
+      - name: Download & Install SDK
+        run: |
+          wget https://updates.victronenergy.com/feeds/venus/release/sdk/venus-dunfell-x86_64-arm-cortexa8hf-neon-toolchain-v3.30.sh
+          chmod u+x venus-dunfell-x86_64-arm-cortexa8hf-neon-toolchain-v3.30.sh
+          sudo ./venus-dunfell-x86_64-arm-cortexa8hf-neon-toolchain-v3.30.sh -y
+          mkdir -p /opt/venus/current
+          sudo ln -s /opt/venus/dunfell-arm-cortexa8hf-neon/* /opt/venus/current/
+      - name: build project
+        run: |
+          . /opt/venus/current/environment-setup-cortexa8hf-neon-ve-linux-gnueabi
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=MinSizeRel ../
+          cmake --build . --config MinSizeRel
+      - name: Upload bundled build artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: bundled-build
+          path: build/bin/venus-gui-v2
+      - name: create filesystem build
+        run: |
+          . /opt/venus/current/environment-setup-cortexa8hf-neon-ve-linux-gnueabi
+          cd build
+          cmake --install .
+      - name: Upload filesystem build artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: filesystem-build
+          path: build/install
