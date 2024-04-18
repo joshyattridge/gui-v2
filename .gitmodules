@@ -1,3 +1,0 @@
-[submodule "veutil"]
-	path = src/veutil
-	url = git@github.com:victronenergy/veutil.git
