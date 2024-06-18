@@ -27,9 +27,9 @@ jobs:
           sudo mkdir venus
       - name: Download & Install SDK
         run: |
-          wget https://updates.victronenergy.com/feeds/venus/release/sdk/venus-dunfell-x86_64-arm-cortexa8hf-neon-toolchain-v3.30.sh
-          chmod u+x venus-dunfell-x86_64-arm-cortexa8hf-neon-toolchain-v3.30.sh
-          sudo ./venus-dunfell-x86_64-arm-cortexa8hf-neon-toolchain-v3.30.sh -y
+          wget https://updates.victronenergy.com/feeds/venus/release/sdk/venus-dunfell-x86_64-arm-cortexa8hf-neon-toolchain-v3.33.sh
+          chmod u+x venus-dunfell-x86_64-arm-cortexa8hf-neon-toolchain-v3.33.sh
+          sudo ./venus-dunfell-x86_64-arm-cortexa8hf-neon-toolchain-v3.33.sh -y
           mkdir -p /opt/venus/current
           sudo ln -s /opt/venus/dunfell-arm-cortexa8hf-neon/* /opt/venus/current/
       - name: build project
