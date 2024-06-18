@@ -126,8 +126,8 @@ Page {
 	}
 
 	VeQuickItem {
-		id: _backupName
-		uid: root.serviceUid + "/BackupName"
+		id: _avaliableBackups
+		uid: root.serviceUid + "/AvailableBackups"
 	}
 
 	VeQuickItem {
@@ -157,7 +157,17 @@ Page {
 
 	GradientListView {
 		model: ObjectModel {
-
+			ListTextField {
+				id: _fileName
+				//% "Backup"
+				text: qsTrId("backup")
+				dataItem.uid: root.serviceUid + "/File"
+				dataItem.invalidate: false
+				textField.maximumLength: 32
+				visible: isValid && value === ""
+				//% "Enter backup name"
+				placeholderText: qsTrId("vebus_device_backup_name")
+			}
 			ListButton {
 				//% "Backup"
 				text: qsTrId("backup")
@@ -167,38 +177,38 @@ Page {
 					//% "Backing up..."
 					: qsTrId("backing_up") + (_backupRestoreInfo.isValid? " " + get_mk2vsc_state(_backupRestoreInfo.value): "")
 				)
-				visible: _backupRestoreAction.isValid
+				visible: _backupRestoreAction.isValid && !_fileName.visible
 				enabled: _backupRestoreAction.value === 0
 				onClicked: {
 					_backupRestoreAction.setValue(1)
 				}
 			}
-			ListButton {
-				//% "Restore"
-				text: qsTrId("restore")
-				secondaryText: (
-					//% "Press to restore"
-					(_backupRestoreAction.value !== 2)? (qsTrId("vebus_device_press_to_restore") + (_backupName.isValid ? " " + _backupName.value : ""))
-					//% "Restoring..."
-					: qsTrId("restoring") + (_backupRestoreInfo.isValid? " " + get_mk2vsc_state(_backupRestoreInfo.value): "")
-				)
-				visible: _backupRestoreAction.isValid && _backupName.isValid
-				enabled: _backupRestoreAction.value === 0
-				onClicked: {
-					_backupRestoreAction.setValue(2)
-				}
-			}
-			ListButton {
-				//% "Delete"
-				text: qsTrId("delete")
-				//% "Press to delete backup file"
-				secondaryText: qsTrId("vebus_device_press_to_delete_backup_file")
-				visible: _backupRestoreAction.isValid && _backupName.isValid
-				enabled: _backupRestoreAction.value === 0
-				onClicked: {
-					_backupRestoreAction.setValue(3)
-				}
-			}
+			// ListButton {
+			// 	//% "Restore"
+			// 	text: qsTrId("restore")
+			// 	secondaryText: (
+			// 		//% "Press to restore"
+			// 		(_backupRestoreAction.value !== 2)? (qsTrId("vebus_device_press_to_restore") + (_backupName.isValid ? " " + _backupName.value : ""))
+			// 		//% "Restoring..."
+			// 		: qsTrId("restoring") + (_backupRestoreInfo.isValid? " " + get_mk2vsc_state(_backupRestoreInfo.value): "")
+			// 	)
+			// 	visible: _backupRestoreAction.isValid && _backupName.isValid
+			// 	enabled: _backupRestoreAction.value === 0
+			// 	onClicked: {
+			// 		_backupRestoreAction.setValue(2)
+			// 	}
+			// }
+			// ListButton {
+			// 	//% "Delete"
+			// 	text: qsTrId("delete")
+			// 	//% "Press to delete backup file"
+			// 	secondaryText: qsTrId("vebus_device_press_to_delete_backup_file")
+			// 	visible: _backupRestoreAction.isValid && _backupName.isValid
+			// 	enabled: _backupRestoreAction.value === 0
+			// 	onClicked: {
+			// 		_backupRestoreAction.setValue(3)
+			// 	}
+			// }
 		}
 	}
 }
