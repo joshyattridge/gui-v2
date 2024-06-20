@@ -109,8 +109,8 @@ Page {
 		}
 	}
 
-	readonly property string serviceUid: BackendConnection.serviceUidForType("vebusbr")
 	property string serialVbus
+	readonly property string serviceUid: BackendConnection.serviceUidForType("vebusbr."+serialVbus)
 
 	VeQuickItem {
 		id: _backupRestoreAction
@@ -118,16 +118,24 @@ Page {
 	}
 
 	VeQuickItem {
-		id: _backupRestoreSerial
-		uid: root.serviceUid + "/Serial"
-		Component.onCompleted: {
-			setValue(root.serialVbus)
-		}
+		id: _backupRestoreFile
+		uid: root.serviceUid + "/File"
+	}
+
+	ListModel {
+		id: _avaliableBackupsModel
 	}
 
 	VeQuickItem {
 		id: _avaliableBackups
 		uid: root.serviceUid + "/AvailableBackups"
+		onValueChanged: {
+			_avaliableBackupsModel.clear()
+			var value_list = JSON.parse(value)
+			for (var i = 0; i < value_list.length; i++) {
+				_avaliableBackupsModel.append({display: value_list[i], value: value_list[i]})
+			}
+		}
 	}
 
 	VeQuickItem {
@@ -158,57 +166,105 @@ Page {
 	GradientListView {
 		model: ObjectModel {
 			ListTextField {
-				id: _fileName
-				//% "Backup"
-				text: qsTrId("backup")
-				dataItem.uid: root.serviceUid + "/File"
-				dataItem.invalidate: false
-				textField.maximumLength: 32
-				visible: isValid && value === ""
+				id: _backupNameInput
+				//% "Backup name"
+				text: qsTrId("backup_name")
+				allowed: _backupRestoreAction.value !== 1
+				enabled: _backupRestoreAction.value === 0
 				//% "Enter backup name"
-				placeholderText: qsTrId("vebus_device_backup_name")
+				placeholderText: qsTrId("enter_backup_name")
+				onAccepted: {
+					if (secondaryText !== "") {
+						_backupNameInput.allowed = false
+					}
+				}
 			}
 			ListButton {
+				id: _backupButton
 				//% "Backup"
-				text: qsTrId("backup")
+				text: qsTrId("backup") + " - " + _backupNameInput.secondaryText
 				secondaryText: (
 					//% "Press to backup"
 					(_backupRestoreAction.value !== 1)? qsTrId("vebus_device_press_to_backup")
 					//% "Backing up..."
 					: qsTrId("backing_up") + (_backupRestoreInfo.isValid? " " + get_mk2vsc_state(_backupRestoreInfo.value): "")
 				)
-				visible: _backupRestoreAction.isValid && !_fileName.visible
 				enabled: _backupRestoreAction.value === 0
+				allowed: !_backupNameInput.allowed 
 				onClicked: {
-					_backupRestoreAction.setValue(1)
+					if (_backupNameInput.secondaryText !== "") {
+						_backupRestoreFile.setValue(_backupNameInput.secondaryText)
+						_backupRestoreAction.setValue(1)
+					}else{
+						Global.showToastNotification(VenusOS.Notification_Warning, qsTrId("enter_backup_name"), 10000)
+					}
 				}
 			}
-			// ListButton {
-			// 	//% "Restore"
-			// 	text: qsTrId("restore")
-			// 	secondaryText: (
-			// 		//% "Press to restore"
-			// 		(_backupRestoreAction.value !== 2)? (qsTrId("vebus_device_press_to_restore") + (_backupName.isValid ? " " + _backupName.value : ""))
-			// 		//% "Restoring..."
-			// 		: qsTrId("restoring") + (_backupRestoreInfo.isValid? " " + get_mk2vsc_state(_backupRestoreInfo.value): "")
-			// 	)
-			// 	visible: _backupRestoreAction.isValid && _backupName.isValid
-			// 	enabled: _backupRestoreAction.value === 0
-			// 	onClicked: {
-			// 		_backupRestoreAction.setValue(2)
-			// 	}
-			// }
-			// ListButton {
-			// 	//% "Delete"
-			// 	text: qsTrId("delete")
-			// 	//% "Press to delete backup file"
-			// 	secondaryText: qsTrId("vebus_device_press_to_delete_backup_file")
-			// 	visible: _backupRestoreAction.isValid && _backupName.isValid
-			// 	enabled: _backupRestoreAction.value === 0
-			// 	onClicked: {
-			// 		_backupRestoreAction.setValue(3)
-			// 	}
-			// }
+			ListRadioButtonGroup {
+				id: _restoreOptionsList
+				//% "Restore"
+				text: qsTrId("restore")
+				optionModel: _avaliableBackupsModel
+				//% "Select backup file to restore"
+				secondaryText: qsTrId("select_backup_file_to_restore")
+				updateOnClick: false
+				popDestination: root
+				allowed: _backupRestoreAction.value !== 2
+				enabled: _backupRestoreAction.value === 0
+				onOptionClicked: function(index) {
+					_restoreOptionsList.allowed = false
+					_restoreOptionsList.secondaryText = _avaliableBackupsModel.get(index).value
+				}
+			}
+			ListButton {
+				//% "Restore"
+				text: qsTrId("restore") + " - " + _restoreOptionsList.secondaryText
+				secondaryText: (
+					//% "Press to restore"
+					(_backupRestoreAction.value !== 2)? (qsTrId("vebus_device_press_to_restore"))
+					//% "Restoring..."
+					: qsTrId("restoring") + (_backupRestoreInfo.isValid? " " + get_mk2vsc_state(_backupRestoreInfo.value): "")
+				)
+				enabled: _backupRestoreAction.value === 0
+				allowed: !_restoreOptionsList.allowed
+				onClicked: {
+					_backupRestoreFile.setValue(_restoreOptionsList.secondaryText)
+					_backupRestoreAction.setValue(2)
+				}
+
+			}
+			ListRadioButtonGroup {
+				id: _deleteOptionsList
+				//% "Delete"
+				text: qsTrId("delete")
+				optionModel: _avaliableBackupsModel
+				//% "Select backup file to delete"
+				secondaryText: qsTrId("select_backup_file_to_delete")
+				updateOnClick: false
+				popDestination: root
+				allowed: _backupRestoreAction.value !== 3
+				enabled: _backupRestoreAction.value === 0
+				onOptionClicked: function(index) {
+					_deleteOptionsList.allowed = false
+					_deleteOptionsList.secondaryText = _avaliableBackupsModel.get(index).value
+				}
+			}
+			ListButton {
+				//% "Delete"
+				text: qsTrId("delete") + " - " + _deleteOptionsList.secondaryText
+				secondaryText: (
+					//% "Press to delete"
+					(_backupRestoreAction.value !== 3)? (qsTrId("vebus_device_press_to_delete"))
+					//% "Deleting..."
+					: qsTrId("deleting") + (_backupRestoreInfo.isValid? " " + get_mk2vsc_state(_backupRestoreInfo.value): "")
+				)
+				enabled: _backupRestoreAction.value === 0
+				allowed: !_deleteOptionsList.allowed
+				onClicked: {
+					_backupRestoreFile.setValue(_deleteOptionsList.secondaryText)
+					_backupRestoreAction.setValue(3)
+				}
+			}
 		}
 	}
 }
