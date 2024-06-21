@@ -134,7 +134,7 @@ Page {
 			_avaliableBackupsModel.clear()
 			var value_list = JSON.parse(value)
 			for (var i = 0; i < value_list.length; i++) {
-				_avaliableBackupsModel.append({display: value_list[i], value: value_list[i]})
+				_avaliableBackupsModel.append({display: value_list[i].split("-"+serialVbus)[0], value: value_list[i]})
 			}
 		}
 	}
@@ -176,7 +176,13 @@ Page {
 				placeholderText: qsTrId("enter_backup_name")
 				onAccepted: {
 					if (secondaryText !== "") {
-						_backupNameInput.allowed = false
+						// check for spaces in the name
+						if (secondaryText.indexOf(" ") !== -1) {
+							//% "Backup name cannot contain spaces"
+							Global.showToastNotification(VenusOS.Notification_Warning, qsTrId("backup_name_no_spaces"), 10000)
+						}else{
+							_backupNameInput.allowed = false
+						}
 					}
 				}
 			}
@@ -203,6 +209,7 @@ Page {
 			}
 			ListRadioButtonGroup {
 				id: _restoreOptionsList
+				property string fileToRestore: ""
 				//% "Restore"
 				text: qsTrId("restore")
 				optionModel: _avaliableBackupsModel
@@ -214,7 +221,8 @@ Page {
 				enabled: _backupRestoreAction.value === 0
 				onOptionClicked: function(index) {
 					_restoreOptionsList.allowed = false
-					_restoreOptionsList.secondaryText = _avaliableBackupsModel.get(index).value
+					_restoreOptionsList.secondaryText = _avaliableBackupsModel.get(index).display
+					_restoreOptionsList.fileToRestore = _avaliableBackupsModel.get(index).value
 				}
 			}
 			ListButton {
@@ -229,13 +237,14 @@ Page {
 				enabled: _backupRestoreAction.value === 0
 				allowed: !_restoreOptionsList.allowed
 				onClicked: {
-					_backupRestoreFile.setValue(_restoreOptionsList.secondaryText)
+					_backupRestoreFile.setValue(_restoreOptionsList.fileToRestore)
 					_backupRestoreAction.setValue(2)
 				}
 
 			}
 			ListRadioButtonGroup {
 				id: _deleteOptionsList
+				property string fileToDelete: ""
 				//% "Delete"
 				text: qsTrId("delete")
 				optionModel: _avaliableBackupsModel
@@ -247,7 +256,8 @@ Page {
 				enabled: _backupRestoreAction.value === 0
 				onOptionClicked: function(index) {
 					_deleteOptionsList.allowed = false
-					_deleteOptionsList.secondaryText = _avaliableBackupsModel.get(index).value
+					_deleteOptionsList.secondaryText = _avaliableBackupsModel.get(index).display
+					_deleteOptionsList.fileToDelete = _avaliableBackupsModel.get(index).value
 				}
 			}
 			ListButton {
@@ -262,7 +272,7 @@ Page {
 				enabled: _backupRestoreAction.value === 0
 				allowed: !_deleteOptionsList.allowed
 				onClicked: {
-					_backupRestoreFile.setValue(_deleteOptionsList.secondaryText)
+					_backupRestoreFile.setValue(_deleteOptionsList.fileToDelete)
 					_backupRestoreAction.setValue(3)
 				}
 			}
