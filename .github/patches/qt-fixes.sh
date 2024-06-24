@@ -10,7 +10,7 @@ fi
 QT_VERSION=$(yq '.jobs.build-wasm-file.env.QT_VERSION' ${BUILD_FILE})
 
 # The directory is taken from the fifth step:
-DIR=$(yq ".jobs.build-wasm-file.steps[4].with.dir" ${BUILD_FILE})/Qt
+DIR=$(yq ".jobs.build-wasm-file.steps[5].with.dir" ${BUILD_FILE})/Qt
 
 echo "### Using QT_VERSION: ${QT_VERSION}, dir: ${DIR}"
 
